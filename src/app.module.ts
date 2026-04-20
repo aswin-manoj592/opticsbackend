@@ -51,28 +51,20 @@ import { BankingModule } from './banking/banking.module';
 import { BillWisePaymentModule } from './bill-wise-payment/bill-wise-payment.module';
 import { JournalModule } from './journal/journal.module';
 import { ExpenseDistributionModule } from './expense-distribution/expense-distribution.module';
-
-
-
-
-
-
+import { BrandModule } from './brand/brand.module';
 
 @Module({
   imports: [
-
     /* DATABASE CONNECTION */
-
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',   // change if your MySQL has password
+      password: 'root',
       database: 'optical_crm',
-
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
 
     ServeStaticModule.forRoot({
@@ -81,12 +73,10 @@ import { ExpenseDistributionModule } from './expense-distribution/expense-distri
     }),
 
     /* APPLICATION MODULES */
-
     ModelModule,
     AuthModule,
     DashboardModule,
     AdminModule,
-
     CustomersModule,
     OrdersModule,
     BranchesModule,
@@ -127,12 +117,9 @@ import { ExpenseDistributionModule } from './expense-distribution/expense-distri
     BillWisePaymentModule,
     JournalModule,
     ExpenseDistributionModule,
-
+    BrandModule,
   ],
-
   controllers: [AppController],
   providers: [AppService],
-
-
 })
-export class AppModule { }
+export class AppModule {}

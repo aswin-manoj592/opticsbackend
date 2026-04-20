@@ -15,9 +15,10 @@ export class DashboardService {
     @InjectRepository(Product) private readonly productRepo: Repository<Product>,
   ) {}
 
-  async getDashboardData(branchId?: number) {
-    const today = new Date();
+  async getDashboardData(branchId?: number, dateQuery?: string) {
+    const today = dateQuery ? new Date(dateQuery) : new Date();
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
     
     // Total Stats
     const whereCondition = branchId ? { branchId } : {};
@@ -32,15 +33,21 @@ export class DashboardService {
 
     // Today Stats (we need to filter sales by today's date)
     // Depending on DB timezone this might vary, but assuming date comparison works:
-    const todaySales = allSales.filter(sale => new Date(sale.saleDate) >= startOfToday);
+    const todaySales = allSales.filter(sale => {
+      const saleDate = new Date(sale.saleDate);
+      return saleDate >= startOfToday && saleDate < endOfToday;
+    });
     const todaySalesCount = todaySales.length;
     const todayRevenue = todaySales.reduce((sum, sale) => sum + Number(sale.netTotal || 0), 0);
     
     // For customers, if there is a createdAt field, we count today's. Let's assume we can fetch them all and filter or just count all.
     // If createdAt doesn't exist, we just return a placeholder or 0.
     const allCustomers = await this.customerRepo.find({ where: whereCondition as any });
-    const todayCustomerCount = (allCustomers[0] as any).createdAt 
-        ? allCustomers.filter(c => new Date((c as any).createdAt) >= startOfToday).length 
+    const todayCustomerCount = allCustomers.length > 0 && (allCustomers[0] as any).createdAt 
+        ? allCustomers.filter(c => {
+            const cDate = new Date((c as any).createdAt);
+            return cDate >= startOfToday && cDate < endOfToday;
+        }).length 
         : 0;
 
     const lowStockThreshold = 5;
