@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Damage } from './damage.entity';
 import { Repository } from 'typeorm';
@@ -31,7 +31,7 @@ export class DamageService {
             stock.quantity -= qty;
             await this.stockRepo.save(stock);
         } else {
-            throw new Error("Not enough stock");
+            throw new BadRequestException(`Not enough active stock to process this damage (Found: ${stock?.quantity || 0}).`);
         }
 
         return { message: "Damage recorded & stock updated" };

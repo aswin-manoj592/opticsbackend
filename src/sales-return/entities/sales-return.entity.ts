@@ -12,6 +12,12 @@ export class SalesReturn {
     @Column()
     customerId: number;
 
+    @Column({ unique: true, nullable: true })
+    returnNo: string;
+
+    @Column({ nullable: true })
+    voucherType: string;
+
     @Column({ nullable: true })
     branchId: number;
 

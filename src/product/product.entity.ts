@@ -63,6 +63,9 @@ export class Product {
     @Column({ default: false })
     nonStock: boolean;
 
+    @Column({ default: 0 })
+    likes: number;
+
     @Column({ nullable: true })
     noOfSticker: number;
 

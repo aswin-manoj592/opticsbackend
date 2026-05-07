@@ -52,6 +52,7 @@ import { BillWisePaymentModule } from './bill-wise-payment/bill-wise-payment.mod
 import { JournalModule } from './journal/journal.module';
 import { ExpenseDistributionModule } from './expense-distribution/expense-distribution.module';
 import { BrandModule } from './brand/brand.module';
+import { SalesmanModule } from './salesman/salesman.module';
 
 @Module({
   imports: [
@@ -68,7 +69,7 @@ import { BrandModule } from './brand/brand.module';
     }),
 
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
 
@@ -118,8 +119,9 @@ import { BrandModule } from './brand/brand.module';
     JournalModule,
     ExpenseDistributionModule,
     BrandModule,
+    SalesmanModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

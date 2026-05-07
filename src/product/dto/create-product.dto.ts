@@ -18,5 +18,6 @@ export class CreateProductDto {
     hsnCode?: string;
     nonStock?: boolean;
     noOfSticker?: number;
+    initialStock?: number;
     image?: string;
 }

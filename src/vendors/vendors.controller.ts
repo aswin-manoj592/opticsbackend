@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 
-@Controller('vendor')
+@Controller('vendors')
 export class VendorsController {
 
     constructor(private readonly service: VendorsService) { }
@@ -11,7 +11,7 @@ export class VendorsController {
         return this.service.create(body);
     }
 
-    @Get('getvendors')
+    @Get()
     getAll() {
         return this.service.findAll();
     }

@@ -32,6 +32,15 @@ export class SalesOrder {
     @Column({ default: 'Pending' })
     status: string;
 
+    @Column({ nullable: true })
+    deliveryDate: string;
+
+    @Column("decimal", { default: 0 })
+    advanceAmount: number;
+
+    @Column({ nullable: true })
+    advancePaymentMode: string;
+
     @OneToMany(() => SalesOrderItem, item => item.salesOrder, { cascade: true })
     items: SalesOrderItem[];
 }

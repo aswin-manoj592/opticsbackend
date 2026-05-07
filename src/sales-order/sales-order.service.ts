@@ -38,6 +38,9 @@ export class SalesOrderService {
                 total: orderData.total,
                 discount: orderData.discount || 0,
                 netTotal: orderData.netTotal || orderData.total,
+                deliveryDate: orderData.deliveryDate || undefined,
+                advanceAmount: orderData.advanceAmount || 0,
+                advancePaymentMode: orderData.advancePaymentMode || undefined,
                 status: 'Pending'
             } as Partial<SalesOrder>);
 

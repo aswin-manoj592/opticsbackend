@@ -51,7 +51,9 @@ export class SalesReturnService {
                 branchId: branchId || undefined,
                 date: new Date(data.date),
                 total: data.total,
-                reason: data.reason || ''
+                reason: data.reason || '',
+                returnNo: data.returnNo || `SR-${Date.now().toString().slice(-6)}`,
+                voucherType: data.voucherType || 'SR'
             });
 
             const savedReturn = await queryRunner.manager.save(SalesReturn, salesReturn);

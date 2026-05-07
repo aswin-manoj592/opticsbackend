@@ -6,6 +6,7 @@ import {
   Put,
   Delete,
   Param,
+  Patch,
   UseInterceptors,
   UploadedFile
 } from '@nestjs/common';
@@ -53,6 +54,7 @@ export class ProductController {
     if (dto.rate !== null && dto.rate !== undefined) dto.rate = Number(dto.rate);
     if (dto.noOfSticker !== null && dto.noOfSticker !== undefined) dto.noOfSticker = Number(dto.noOfSticker);
     if (dto.nonStock !== undefined) dto.nonStock = String(dto.nonStock) === 'true';
+    if (dto.initialStock !== null && dto.initialStock !== undefined) dto.initialStock = Number(dto.initialStock);
 
     return this.productService.create(dto);
   }
@@ -109,6 +111,12 @@ export class ProductController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productService.remove(id);
+  }
+
+  // ✅ LIKE PRODUCT
+  @Patch(':id/like')
+  incrementLikes(@Param('id') id: number) {
+    return this.productService.incrementLikes(id);
   }
 
   // ✅ FIND BY BARCODE
