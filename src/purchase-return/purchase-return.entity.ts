@@ -14,6 +14,9 @@ export class PurchaseReturn {
     @Column({ nullable: true })
     branchId: number;
 
+    @Column({ nullable: true })
+    voucherType: string;
+
     @Column()
     invoiceNo: string;
 

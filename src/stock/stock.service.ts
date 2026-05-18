@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Stock } from './stock.entity';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 
 @Injectable()
 export class StockService {
@@ -13,7 +13,7 @@ export class StockService {
 
     // ✅ Get all stock
     findAll(branchId?: number) {
-        const where = branchId ? { branchId } : {};
+        const where = branchId ? [{ branchId }, { branchId: IsNull() }] : {};
         return this.repo.find({
             where,
             relations: ['product'],

@@ -8,12 +8,14 @@ import {
   Param,
   Patch,
   UseInterceptors,
-  UploadedFile
+  UploadedFile,
+  UploadedFiles
 } from '@nestjs/common';
 
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { BranchId } from '../common/decorators/branch-id.decorator';
 
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -26,7 +28,7 @@ export class ProductController {
   // ✅ CREATE WITH IMAGE UPLOAD
   @Post()
   @UseInterceptors(
-    FileInterceptor('image', {
+    FilesInterceptor('images', 10, {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
@@ -39,11 +41,12 @@ export class ProductController {
     }),
   )
   create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() dto: CreateProductDto,
+    @BranchId() branchId: number,
   ) {
-    if (file) {
-      dto.image = file.filename; // ✅ save filename in DB
+    if (files && files.length > 0) {
+      dto.image = files.map(file => file.filename).join(','); // save filenames comma separated in DB
     }
 
     // Handle form-data string conversions
@@ -56,7 +59,7 @@ export class ProductController {
     if (dto.nonStock !== undefined) dto.nonStock = String(dto.nonStock) === 'true';
     if (dto.initialStock !== null && dto.initialStock !== undefined) dto.initialStock = Number(dto.initialStock);
 
-    return this.productService.create(dto);
+    return this.productService.create(dto, branchId);
   }
 
   // ✅ GET ALL
@@ -74,7 +77,7 @@ export class ProductController {
   // ✅ UPDATE (with optional image)
   @Put(':id')
   @UseInterceptors(
-    FileInterceptor('image', {
+    FilesInterceptor('images', 10, {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
@@ -88,11 +91,11 @@ export class ProductController {
   )
   update(
     @Param('id') id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() dto: UpdateProductDto,
   ) {
-    if (file) {
-      dto.image = file.filename;
+    if (files && files.length > 0) {
+      dto.image = files.map(file => file.filename).join(',');
     }
 
     // Handle form-data string conversions

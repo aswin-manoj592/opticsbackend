@@ -7,6 +7,11 @@ import { BranchId } from '../common/decorators/branch-id.decorator';
 export class SalesReturnController {
     constructor(private readonly salesReturnService: SalesReturnService) {}
 
+    @Get('generate-no')
+    generateReturnNo(@BranchId() branchId: number) {
+        return this.salesReturnService.generateReturnNo(branchId).then(returnNo => ({ returnNo }));
+    }
+
     @Get()
     findAll(@BranchId() branchId: number) {
         return this.salesReturnService.findAll(branchId);

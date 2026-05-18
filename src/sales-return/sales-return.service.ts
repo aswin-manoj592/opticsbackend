@@ -38,6 +38,30 @@ export class SalesReturnService {
         });
     }
 
+    async generateReturnNo(branchId?: number): Promise<string> {
+        const branchPrefix = branchId ? `B${branchId}-` : '';
+        
+        const lastReturn = await this.returnRepo.findOne({
+            where: branchId ? { branchId } : {},
+            order: { id: 'DESC' }
+        });
+
+        if (!lastReturn || !lastReturn.returnNo) {
+            return `${branchPrefix}SR-0001`;
+        }
+
+        const parts = lastReturn.returnNo.split('-');
+        const lastNumStr = parts[parts.length - 1];
+        const lastNum = parseInt(lastNumStr, 10);
+
+        if (isNaN(lastNum)) {
+            return `${branchPrefix}SR-${Date.now().toString().slice(-6)}`;
+        }
+
+        const nextNum = lastNum + 1;
+        return `${branchPrefix}SR-${nextNum.toString().padStart(4, '0')}`;
+    }
+
     async create(data: any, branchId?: number) {
         const queryRunner = this.dataSource.createQueryRunner();
 
@@ -45,6 +69,8 @@ export class SalesReturnService {
         await queryRunner.startTransaction();
 
         try {
+            const generatedReturnNo = await this.generateReturnNo(branchId);
+
             const salesReturn = queryRunner.manager.create(SalesReturn, {
                 customerId: data.customerId,
                 saleId: data.saleId,
@@ -52,7 +78,7 @@ export class SalesReturnService {
                 date: new Date(data.date),
                 total: data.total,
                 reason: data.reason || '',
-                returnNo: data.returnNo || `SR-${Date.now().toString().slice(-6)}`,
+                returnNo: data.returnNo || generatedReturnNo,
                 voucherType: data.voucherType || 'SR'
             });
 

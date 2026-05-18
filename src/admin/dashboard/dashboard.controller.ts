@@ -7,4 +7,7 @@ export class DashboardController {
 
   @Get()
   getStats() { return this.service.getStats(); }
+
+  @Get('reports')
+  getReports() { return this.service.getReports(); }
 }

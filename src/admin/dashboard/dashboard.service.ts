@@ -54,4 +54,77 @@ export class DashboardService {
       }))
     };
   }
+
+  async getReports() {
+    try {
+      // 1. Fetch all branches
+      const branches = await this.em.query('SELECT id, name FROM admin_branch');
+      
+      let totalCompanyRevenue = 0;
+      const branchReports: any[] = [];
+
+      // Generate date range for the last 7 days
+      const last7Days: string[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        last7Days.push(d.toISOString().split('T')[0]);
+      }
+
+      for (const branch of branches) {
+        // Fetch total revenue for this branch
+        const revenueResult = await this.em.query(
+          'SELECT SUM(netTotal) as total FROM sale WHERE branchId = ?', 
+          [branch.id]
+        );
+        const branchRevenue = Number(revenueResult[0]?.total || 0);
+        totalCompanyRevenue += branchRevenue;
+
+        // Fetch sales count
+        const orderResult = await this.em.query(
+          'SELECT COUNT(*) as count FROM sale WHERE branchId = ?',
+          [branch.id]
+        );
+        const branchOrders = Number(orderResult[0]?.count || 0);
+
+        // Fetch daily sales for the graph
+        const dailySalesRaw = await this.em.query(
+          'SELECT DATE(saleDate) as date, SUM(netTotal) as total FROM sale WHERE branchId = ? AND saleDate >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(saleDate)',
+          [branch.id]
+        );
+
+        // Map to standard 7 day format so the graph looks clean
+        const salesGraph = last7Days.map(dateStr => {
+          // find if we had sales on this date
+          const match = dailySalesRaw.find((row: any) => {
+            const rowDate = new Date(row.date);
+            // offset timezone if necessary, but string match on ISO is safest
+            return rowDate.toISOString().split('T')[0] === dateStr;
+          });
+          
+          return {
+            date: dateStr.split('-').slice(1).join('/'), // e.g. "05/18"
+            revenue: match ? Number(match.total) : 0
+          };
+        });
+
+        branchReports.push({
+          id: branch.id,
+          name: branch.name,
+          revenue: branchRevenue,
+          orders: branchOrders,
+          salesGraph
+        });
+      }
+
+      return {
+        totalCompanyRevenue,
+        branches: branchReports
+      };
+
+    } catch (error) {
+      console.error('Error fetching admin reports:', error);
+      return { totalCompanyRevenue: 0, branches: [] };
+    }
+  }
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Customer } from './customer.entity';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class CustomersService {
@@ -13,8 +14,15 @@ export class CustomersService {
     ) { }
 
     findAll(branchId?: number) {
-        const where = branchId ? { branchId } : {};
-        return this.customerRepo.find({ where });
+        if (branchId) {
+            return this.customerRepo.find({
+                where: [
+                    { branchId },
+                    { branchId: IsNull() }
+                ]
+            });
+        }
+        return this.customerRepo.find();
     }
 
     async create(data: any, branchId?: number) {
